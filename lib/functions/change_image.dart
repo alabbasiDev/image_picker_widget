@@ -19,7 +19,10 @@ Future<File?> changeImage(
       type = mandatoryImageSource;
     } else {
       type = await showModalBottomSheet<ImageSource?>(
-          context: context, builder: (context) => modal);
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) => modal,
+      );
     }
   }
   if (type != null) {

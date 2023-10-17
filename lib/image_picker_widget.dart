@@ -94,6 +94,7 @@ class ImagePickerWidget extends StatefulWidget {
       {ModalOptions? options}) async {
     return showModalBottomSheet<ImageSource?>(
       context: context,
+      backgroundColor: Colors.transparent,
       builder: (context) => ModalImageSelector(options),
     );
   }
