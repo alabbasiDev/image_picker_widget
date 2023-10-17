@@ -54,6 +54,8 @@ class ImagePickerWidget extends StatefulWidget {
 
   /// Defines if the image can be edited
   final bool shouldCrop;
+  final double? width;
+  final double? height;
 
   /// Image editing params
   final CroppedImageOptions? croppedImageOptions;
@@ -67,6 +69,8 @@ class ImagePickerWidget extends StatefulWidget {
     this.isEditable = false,
     this.shouldCrop = false,
     this.onChange,
+    this.height,
+    this.width,
     this.backgroundColor,
     this.borderRadius = const Radius.circular(8),
     this.shape = ImagePickerWidgetShape.circle,
@@ -109,8 +113,12 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
   Widget build(BuildContext context) {
     return _editMode(
         child: Container(
-      width: widget.diameter,
-      height: widget.diameter,
+      width: widget.shape == ImagePickerWidgetShape.circle
+          ? widget.diameter
+          : widget.width,
+      height: widget.shape == ImagePickerWidgetShape.circle
+          ? widget.diameter
+          : widget.height,
       decoration: BoxDecoration(
           color: widget.backgroundColor ?? Colors.grey[500],
           borderRadius: BorderRadius.all(
@@ -154,8 +162,12 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
             });
           },
           child: Container(
-            width: widget.diameter,
-            height: widget.diameter,
+            width: widget.shape == ImagePickerWidgetShape.circle
+                ? widget.diameter
+                : widget.width,
+            height: widget.shape == ImagePickerWidgetShape.circle
+                ? widget.diameter
+                : widget.height,
             child: Stack(
               children: [
                 child,
