@@ -46,38 +46,42 @@ class ImagePickerWidget extends StatefulWidget {
   final AlignmentGeometry? iconAlignment;
 
   final IndexedWidgetPickerBuilder? imagePickerModal;
-  
-  final ModalOptions? modalOptions;
 
+  final ModalOptions? modalOptions;
 
   /// Image picker params
   final ImagePickerOptions? imagePickerOptions;
+
   /// Defines if the image can be edited
   final bool shouldCrop;
+
   /// Image editing params
   final CroppedImageOptions? croppedImageOptions;
 
-  const ImagePickerWidget(
-      {Key? key,
-      required this.diameter,
-      this.initialImage,
-      this.isEditable = false,
-      this.shouldCrop = false,
-      this.onChange,
-      this.backgroundColor,
-      this.borderRadius = const Radius.circular(8),
-      this.shape = ImagePickerWidgetShape.circle,
-      this.iconAlignment,
-      this.editIcon,
-      this.fit,
-      this.imagePickerModal,
-      this.modalOptions, 
-      this.croppedImageOptions,
-      this.imagePickerOptions
-    }) : assert(
+  final ImageSource? mandatoryImageSource;
+
+  const ImagePickerWidget({
+    Key? key,
+    required this.diameter,
+    this.initialImage,
+    this.isEditable = false,
+    this.shouldCrop = false,
+    this.onChange,
+    this.backgroundColor,
+    this.borderRadius = const Radius.circular(8),
+    this.shape = ImagePickerWidgetShape.circle,
+    this.iconAlignment,
+    this.editIcon,
+    this.fit,
+    this.imagePickerModal,
+    this.modalOptions,
+    this.croppedImageOptions,
+    this.imagePickerOptions,
+    this.mandatoryImageSource,
+  })  : assert(
             (initialImage is String ||
                 initialImage is File ||
-                initialImage is ImageProvider || 
+                initialImage is ImageProvider ||
                 initialImage == null),
             'initialImage must be an String, ImageProvider, or File'),
         super(key: key);
@@ -86,9 +90,12 @@ class ImagePickerWidget extends StatefulWidget {
   _ImagePickerWidgetState createState() =>
       _ImagePickerWidgetState(this.initialImage);
 
-  static Future<ImageSource?> selectSourceModal(BuildContext context, { ModalOptions? options }) async {
+  static Future<ImageSource?> selectSourceModal(BuildContext context,
+      {ModalOptions? options}) async {
     return showModalBottomSheet<ImageSource?>(
-      context: context, builder: (context) => ModalImageSelector(options),);
+      context: context,
+      builder: (context) => ModalImageSelector(options),
+    );
   }
 }
 
@@ -106,9 +113,10 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
       decoration: BoxDecoration(
           color: widget.backgroundColor ?? Colors.grey[500],
           borderRadius: BorderRadius.all(
-              (widget.shape == ImagePickerWidgetShape.circle
-                  ? Radius.circular(999)
-                  : widget.borderRadius),),
+            (widget.shape == ImagePickerWidgetShape.circle
+                ? Radius.circular(999)
+                : widget.borderRadius),
+          ),
           image: _image()),
     ));
   }
@@ -121,18 +129,19 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
           onTap: () {
             Widget modal = ModalImageSelector(widget.modalOptions);
             if (widget.imagePickerModal != null) {
-              modal = widget.imagePickerModal!(context, 
-                (context) => Navigator.of(context).pop(ImageSource.camera),
-                (context) => Navigator.of(context).pop(ImageSource.gallery)
-              );
+              modal = widget.imagePickerModal!(
+                  context,
+                  (context) => Navigator.of(context).pop(ImageSource.camera),
+                  (context) => Navigator.of(context).pop(ImageSource.gallery));
             }
             changeImage(
-                    context,
-                    modal,
-                    widget.shouldCrop,
-                    widget.croppedImageOptions,
-                    widget.imagePickerOptions)
-                .then((file) {
+              context,
+              modal,
+              widget.shouldCrop,
+              widget.croppedImageOptions,
+              widget.imagePickerOptions,
+              mandatoryImageSource: widget.mandatoryImageSource,
+            ).then((file) {
               if (file != null) {
                 if (widget.onChange != null) {
                   widget.onChange!(file);
@@ -157,7 +166,8 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                         color: Colors.grey[700],
                         child: Padding(
                           padding: EdgeInsets.all(8),
-                          child: Icon(Icons.edit, size: 22, color: Colors.white),
+                          child:
+                              Icon(Icons.edit, size: 22, color: Colors.white),
                         ),
                       ),
                 )
@@ -171,8 +181,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
 
   /// Analysis if the image is a `File`, an external `url` or null
   DecorationImage? _image() {
-    BoxFit _fit = widget.fit 
-      ?? (kIsWeb ? BoxFit.contain : BoxFit.cover);
+    BoxFit _fit = widget.fit ?? (kIsWeb ? BoxFit.contain : BoxFit.cover);
 
     if (image is ImageProvider) {
       return DecorationImage(image: image, fit: _fit);
@@ -182,8 +191,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         return DecorationImage(image: NetworkImage(image.path), fit: _fit);
       }
       return DecorationImage(image: FileImage(image), fit: _fit);
-    }
-    else if (image != null && image.toString().isNotEmpty)
+    } else if (image != null && image.toString().isNotEmpty)
       return DecorationImage(image: NetworkImage(image.toString()), fit: _fit);
     return null;
   }
