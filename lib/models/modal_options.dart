@@ -5,6 +5,7 @@ class ModalOptions {
   final Widget? cameraText;
 
   final bool inRow;
+  final Axis? directionOfImageSourceWidgets;
   final Widget? galleryText;
   final IconData? cameraIcon;
   final IconData? galleryIcon;
@@ -34,5 +35,6 @@ class ModalOptions {
     this.borderRadius,
     this.bgColor,
     this.inRow = true,
+    this.directionOfImageSourceWidgets = Axis.vertical,
   });
 }

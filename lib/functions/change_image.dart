@@ -26,11 +26,13 @@ Future<File?> changeImage(
     imagePickerOptions ??= ImagePickerOptions();
 
     final XFile? _picked = await _picker.pickImage(
-        source: type,
-        imageQuality: imagePickerOptions.imageQuality,
-        maxHeight: imagePickerOptions.maxHeight,
-        maxWidth: imagePickerOptions.maxWidth,
-        preferredCameraDevice: imagePickerOptions.preferredCameraDevice);
+      source: type,
+      imageQuality: imagePickerOptions.imageQuality,
+      maxHeight: imagePickerOptions.maxHeight,
+      maxWidth: imagePickerOptions.maxWidth,
+      preferredCameraDevice: imagePickerOptions.preferredCameraDevice,
+    );
+
     if (_picked != null) {
       if (shouldCrop) {
         response = await cropImage(_picked, croppedImageOptions);
