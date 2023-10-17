@@ -3,6 +3,8 @@ part of image_picker_widget;
 class ModalOptions {
   final Widget? title;
   final Widget? cameraText;
+
+  final bool inRow;
   final Widget? galleryText;
   final IconData? cameraIcon;
   final IconData? galleryIcon;
@@ -31,5 +33,6 @@ class ModalOptions {
     this.padding,
     this.borderRadius,
     this.bgColor,
+    this.inRow = true,
   });
 }

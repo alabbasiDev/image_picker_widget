@@ -7,6 +7,7 @@ class ModalImageSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomSheet(
+        backgroundColor: Colors.transparent,
         onClosing: () {
           return null;
         },
@@ -41,57 +42,120 @@ class ModalImageSelector extends StatelessWidget {
                   FractionallySizedBox(
                     widthFactor: 1.2 / 2,
                     alignment: Alignment.centerLeft,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        InkWell(
-                          onTap: () {
-                            Navigator.of(context).pop(ImageSource.camera);
-                          },
-                          child: Column(
+                    child: (modalOptions?.inRow ?? true)
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
-                              Icon(
-                                modalOptions?.cameraIcon ?? Icons.camera,
-                                size: modalOptions?.cameraSize ?? 40,
-                                color: modalOptions?.cameraColor ??
-                                    Theme.of(context).primaryColor,
+                              ImageSourceWidget(
+                                titleWidget: modalOptions?.cameraText,
+                                title: "camera",
+                                inRow: false,
+                                icon: Icon(
+                                  modalOptions?.cameraIcon ?? Icons.camera,
+                                  size: modalOptions?.cameraSize ?? 40,
+                                  color: modalOptions?.cameraColor ??
+                                      Theme.of(context).primaryColor,
+                                ),
+                                onTap: () {
+                                  Navigator.of(context).pop(ImageSource.camera);
+                                },
                               ),
-                              modalOptions?.cameraText ??
-                                  Text(
-                                    "camera",
-                                    style:
-                                        Theme.of(context).textTheme.labelSmall,
-                                  )
+                              ImageSourceWidget(
+                                titleWidget: modalOptions?.galleryText,
+                                title: "gallery",
+                                inRow: false,
+                                icon: Icon(
+                                  modalOptions?.galleryIcon ??
+                                      Icons.collections,
+                                  size: modalOptions?.gallerySize ?? 40,
+                                  color: modalOptions?.galleryColor ??
+                                      Theme.of(context).primaryColor,
+                                ),
+                                onTap: () {
+                                  Navigator.of(context)
+                                      .pop(ImageSource.gallery);
+                                },
+                              ),
+                            ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              ImageSourceWidget(
+                                titleWidget: modalOptions?.cameraText,
+                                title: "camera",
+                                inRow: true,
+                                icon: Icon(
+                                  modalOptions?.cameraIcon ?? Icons.camera,
+                                  size: modalOptions?.cameraSize ?? 40,
+                                  color: modalOptions?.cameraColor ??
+                                      Theme.of(context).primaryColor,
+                                ),
+                                onTap: () {
+                                  Navigator.of(context).pop(ImageSource.camera);
+                                },
+                              ),
+                              ImageSourceWidget(
+                                titleWidget: modalOptions?.galleryText,
+                                title: "gallery",
+                                inRow: true,
+                                icon: Icon(
+                                  modalOptions?.galleryIcon ??
+                                      Icons.collections,
+                                  size: modalOptions?.gallerySize ?? 40,
+                                  color: modalOptions?.galleryColor ??
+                                      Theme.of(context).primaryColor,
+                                ),
+                                onTap: () {
+                                  Navigator.of(context)
+                                      .pop(ImageSource.gallery);
+                                },
+                              ),
                             ],
                           ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.of(context).pop(ImageSource.gallery);
-                          },
-                          child: Column(
-                            children: <Widget>[
-                              Icon(
-                                modalOptions?.galleryIcon ?? Icons.collections,
-                                size: modalOptions?.gallerySize ?? 40,
-                                color: modalOptions?.galleryColor ??
-                                    Theme.of(context).primaryColor,
-                              ),
-                              modalOptions?.galleryText ??
-                                  Text(
-                                    "gallery",
-                                    style:
-                                        Theme.of(context).textTheme.labelSmall,
-                                  )
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
                   ),
                   SizedBox()
                 ],
               ),
             ));
+  }
+}
+
+class ImageSourceWidget extends StatelessWidget {
+  final Icon icon;
+  final Widget? titleWidget;
+  final String title;
+  final VoidCallback onTap;
+  final bool inRow;
+  const ImageSourceWidget({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.titleWidget,
+    this.inRow = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    var children = <Widget>[
+      icon,
+      titleWidget ??
+          Text(
+            title,
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
+    ];
+
+    return InkWell(
+      onTap: onTap,
+      child: inRow
+          ? Row(
+              children: children,
+            )
+          : Column(
+              children: children,
+            ),
+    );
   }
 }
