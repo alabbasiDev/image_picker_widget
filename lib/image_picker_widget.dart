@@ -2,18 +2,26 @@ library image_picker_widget;
 
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 part 'components/modal_image_selector.dart';
+
 part 'enum/image_picker_widget_shape.dart';
+
 part 'models/cropped_image_options.dart';
+
 part 'models/image_picker_options.dart';
+
 part 'models/bottom_sheet.dart';
+
 part 'models/modal_options.dart';
+
 part 'functions/crop_image.dart';
+
 part 'functions/change_image.dart';
 
 class ImagePickerWidget extends StatefulWidget {
@@ -109,25 +117,82 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
 
   _ImagePickerWidgetState(this.image);
 
+  double? get height {
+    return widget.shape == ImagePickerWidgetShape.circle
+        ? widget.diameter
+        : widget.height;
+  }
+
+  double? get width {
+    return widget.shape == ImagePickerWidgetShape.circle
+        ? widget.diameter
+        : widget.width;
+  }
+
+  bool hasError = false;
+
+  void onHasErrorListener(error) {
+    // logger.d(error.toString());
+    setState(() {
+      hasError = true;
+    });
+  }
+
+  /// Analysis if the image is a `File`, an external `url` or null
+  DecorationImage? _image() {
+    BoxFit _fit = widget.fit ?? (kIsWeb ? BoxFit.contain : BoxFit.cover);
+
+    if (image is ImageProvider) {
+      return DecorationImage(image: image, fit: _fit);
+    }
+
+    if (image is File) {
+      if (kIsWeb) {
+        return DecorationImage(image: NetworkImage(image.path), fit: _fit);
+      }
+      return DecorationImage(
+        image: FileImage(
+          image,
+        ),
+        fit: _fit,
+      );
+    }
+
+    if (image != null && image.toString().isNotEmpty)
+      return DecorationImage(
+        // image: NetworkImage(image.toString()),
+        image: CachedNetworkImageProvider(
+          widget.initialImage,
+          errorListener: onHasErrorListener,
+        ),
+        fit: _fit,
+      );
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return _editMode(
-        child: Container(
-      width: widget.shape == ImagePickerWidgetShape.circle
-          ? widget.diameter
-          : widget.width,
-      height: widget.shape == ImagePickerWidgetShape.circle
-          ? widget.diameter
-          : widget.height,
-      decoration: BoxDecoration(
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
           color: widget.backgroundColor ?? Colors.grey[500],
           borderRadius: BorderRadius.all(
             (widget.shape == ImagePickerWidgetShape.circle
                 ? Radius.circular(999)
                 : widget.borderRadius),
           ),
-          image: _image()),
-    ));
+          image: _image(),
+        ),
+        child: hasError && image is String
+            ? Icon(
+                Icons.camera_alt_outlined,
+                size: height,
+              )
+            : null,
+      ),
+    );
   }
 
   Widget _editMode({required Widget child}) {
@@ -162,12 +227,8 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
             });
           },
           child: Container(
-            width: widget.shape == ImagePickerWidgetShape.circle
-                ? widget.diameter
-                : widget.width,
-            height: widget.shape == ImagePickerWidgetShape.circle
-                ? widget.diameter
-                : widget.height,
+            width: width,
+            height: height,
             child: Stack(
               children: [
                 child,
@@ -190,22 +251,5 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         ),
       );
     return child;
-  }
-
-  /// Analysis if the image is a `File`, an external `url` or null
-  DecorationImage? _image() {
-    BoxFit _fit = widget.fit ?? (kIsWeb ? BoxFit.contain : BoxFit.cover);
-
-    if (image is ImageProvider) {
-      return DecorationImage(image: image, fit: _fit);
-    }
-    if (image is File) {
-      if (kIsWeb) {
-        return DecorationImage(image: NetworkImage(image.path), fit: _fit);
-      }
-      return DecorationImage(image: FileImage(image), fit: _fit);
-    } else if (image != null && image.toString().isNotEmpty)
-      return DecorationImage(image: NetworkImage(image.toString()), fit: _fit);
-    return null;
   }
 }
