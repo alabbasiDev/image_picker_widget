@@ -2,14 +2,12 @@ library image_picker_widget;
 
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_picker_widget/functions/extensions.dart';
-import 'package:logger/logger.dart';
 
 part 'components/modal_image_selector.dart';
 
@@ -27,8 +25,6 @@ part 'functions/crop_image.dart';
 
 part 'functions/change_image.dart';
 
-
-final  logger =  Logger() ;
 
 class ImagePickerWidget extends StatefulWidget {
   /// The diameter of the container in which the image is contained
@@ -97,11 +93,11 @@ class ImagePickerWidget extends StatefulWidget {
     this.imagePickerOptions,
     this.mandatoryImageSource,
   })  : assert(
-            (initialImage is String ||
-                initialImage is File ||
-                initialImage is ImageProvider ||
-                initialImage == null),
-            'initialImage must be an String, ImageProvider, or File'),
+  (initialImage is String ||
+      initialImage is File ||
+      initialImage is ImageProvider ||
+      initialImage == null),
+  'initialImage must be an String, ImageProvider, or File'),
         super(key: key);
 
   @override
@@ -138,7 +134,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
   bool hasError = false;
 
   void onHasErrorListener(error) {
-    logger.e(error.toString());
+    // logger.e(error.toString());
     setState(() {
       hasError = true;
     });
@@ -164,9 +160,9 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
       );
     }
 
-    if (image != null && image is String && image.isNotNullOrEmpty) {
+    if (image != null && image is String && (image as String).isNotEmpty) {
       late ImageProvider imageProvider;
-      logger.e('isBase64 isBase64 => ${image.toString().isBase64}');
+      // logger.e('isBase64 isBase64 => ${image.toString().isBase64}');
       if (image.toString().isBase64) {
         var decoded = base64Decode(image);
         imageProvider = MemoryImage(decoded);
@@ -202,9 +198,9 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         ),
         child: hasError && image is String
             ? Icon(
-                Icons.camera_alt_outlined,
-                size: height,
-              )
+          Icons.camera_alt_outlined,
+          size: height,
+        )
             : null,
       ),
     );
@@ -220,8 +216,8 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
             if (widget.imagePickerModal != null) {
               modal = widget.imagePickerModal!(
                   context,
-                  (context) => Navigator.of(context).pop(ImageSource.camera),
-                  (context) => Navigator.of(context).pop(ImageSource.gallery));
+                      (context) => Navigator.of(context).pop(ImageSource.camera),
+                      (context) => Navigator.of(context).pop(ImageSource.gallery));
             }
             changeImage(
               context,
@@ -256,7 +252,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                         child: Padding(
                           padding: EdgeInsets.all(8),
                           child:
-                              Icon(Icons.edit, size: 22, color: Colors.white),
+                          Icon(Icons.edit, size: 22, color: Colors.white),
                         ),
                       ),
                 )
