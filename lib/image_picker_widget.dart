@@ -1,5 +1,6 @@
 library image_picker_widget;
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,6 +8,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_picker_widget/functions/extensions.dart';
+import 'package:logger/logger.dart';
 
 part 'components/modal_image_selector.dart';
 
@@ -23,6 +26,9 @@ part 'models/modal_options.dart';
 part 'functions/crop_image.dart';
 
 part 'functions/change_image.dart';
+
+
+final  logger =  Logger() ;
 
 class ImagePickerWidget extends StatefulWidget {
   /// The diameter of the container in which the image is contained
@@ -132,7 +138,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
   bool hasError = false;
 
   void onHasErrorListener(error) {
-    // logger.d(error.toString());
+    logger.e(error.toString());
     setState(() {
       hasError = true;
     });
@@ -158,15 +164,24 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
       );
     }
 
-    if (image != null && image.toString().isNotEmpty)
-      return DecorationImage(
-        // image: NetworkImage(image.toString()),
-        image: CachedNetworkImageProvider(
+    if (image != null && image is String && image.isNotNullOrEmpty) {
+      late ImageProvider imageProvider;
+      logger.e('isBase64 isBase64 => ${image.toString().isBase64}');
+      if (image.toString().isBase64) {
+        var decoded = base64Decode(image);
+        imageProvider = MemoryImage(decoded);
+      } else {
+        imageProvider = CachedNetworkImageProvider(
           widget.initialImage,
           errorListener: onHasErrorListener,
-        ),
+        );
+      }
+      return DecorationImage(
+        image: imageProvider,
         fit: _fit,
       );
+    }
+
     return null;
   }
 
